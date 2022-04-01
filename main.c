@@ -1,5 +1,7 @@
 #include "headers.h"
 
+#define MAX_LENGHT 16
+
 /*=============================================================================
  |   Assignment:  Palavras cruzadas 2021/2022
  |
@@ -35,16 +37,92 @@ void help();
 
 
 
- int main()
+ int main(int argc,char *argv[])
 {
     int board[15][15]={0};
+    int linhas=0,colunas=0;
+    int x =0,y =0;
+    int option=0;
+    int gamemode=0;
+    char word[MAX_LENGHT] = "teste" ;
+    char direction = 'h';
 
-    initboard(board,10,11);
-    printboard(board,10,11);
+
+
+    while (((option = getopt(argc,argv,"h:t:d:l:m:n:i:j:o:r"))!=-1)){
+            switch(option){
+                case 'h' :
+                    help();
+                    return 0;
+                break;
+
+                case 't' :
+                    //erro se as duas variaves nao forem lidas corretamente
+                    if((sscanf(optarg,"%dx%d,&linhas,&colunas"))!=2)
+                    {
+                        Error(3);
+                    }
+                    //Erro se a linhas e colunas nao cumprirem as restriçoes
+                    if(linhas < 7 || linhas > 15 || linhas == 8|| linhas ==10 || linhas ==12 ||linhas == 14 || linhas != colunas)
+                    {
+                        Error(3);
+
+                        return -1;
+                    }
+                    break;
+
+                case 'd' :
+                    break;
+
+                case 'l' :
+                    break;
+
+                case 'm' :
+                    break;
+
+                case 'n' :
+                    break;
+
+                case 'i' :
+                    break;
+
+                case 'j' :
+                    if(sscanf(optarg,"%d",&gamemode)!=1)
+                    {
+                        Error(4);
+                        return -1;
+                    }
+                    if(gamemode< 0 || gamemode > 4)
+                    {
+                        Error(4);
+                        return -1;
+                    }
+                    break;
+
+                case 'o' :
+                    break;
+
+                case 'r' :
+                    break;
+
+                default:
+                    printf("\nArgumento desconhecido\n");
+                    help();
+                    return -1;
+
+                    break;
+            }
+    }
+
+    initboard(board,linhas,colunas);
+    insert_word(board,direction,word,linhas,x,y);
+    printboard(board,linhas,colunas);
 
 
     return 0;
+
 }
+
 
 
 /** \brief Função que imprime o campo
@@ -63,17 +141,8 @@ void printboard(int board[15][15],int lines, int columns)
 
     for(int i = 0 ;i < lines ;i++ )
     {
-        //Erro se a linhas e colunas nao cumprirem as restriçoes
-        if(lines < 7 || lines > 15 || lines == 8|| lines ==10 || lines ==12 ||lines == 14)
-        {
-            Error(1);
-            exit(0);
-        }
-
-
         printf("\n\t%d   ",i+1); //print do numero das linhas
         if (i<9 ){printf(" ");}//ajustar o campo
-
 
         for(int j = 0; j < columns ; j++)
         {
@@ -82,9 +151,7 @@ void printboard(int board[15][15],int lines, int columns)
             else if(board[i][j]==2){printf("2  ");}
             else if(board[i][j]==3){printf("3  ");}
             else if(board[i][j]==4){printf("$  ");}
-            else{printf("%c",board[i][j]);}
-
-
+            else{printf("%c  ",board[i][j]);}
         }
     }
     printf("\n\n\t     ");
@@ -92,6 +159,7 @@ void printboard(int board[15][15],int lines, int columns)
     {
         printf("%c  ",'A'+j); // print dos identificadores das colunas
     }
+    printf("\n");
 }
 /** \brief Função que inicializa o campo
  *
@@ -102,6 +170,7 @@ void printboard(int board[15][15],int lines, int columns)
  *      INPUT:Columns (int) number of columns in the matrix
  *  \return tabuleiro inicializado
  */
+
 
 
 
@@ -174,6 +243,7 @@ void initboard(int board[15][15],int lines, int columns)
     }
 
 }
+
 /** \brief Função que coloca a palavra dentro do tabuleiro na direção especificada
  *
  * \param
@@ -187,8 +257,65 @@ void initboard(int board[15][15],int lines, int columns)
  * \return devolve o tabuleiro com a palavra colocada no sitio pretentido e na direção pretendida
  */
 
-void insert_word(int board[15][15],int direction,char palavra[15],int lines,int x,int y)
+void insert_word(int board[15][15],int direction,char word[MAX_LENGHT],int lines,int x,int y)
 {
+    switch(direction)
+    {
+    case 'v':
+            for(int i = 0; i< lines ;i++){
+
+                for(int j = 0; j < lines ;j++)
+                {
+                    if(i == x && j == y)
+                    {
+                        if(i+strlen(word)<lines) //restrição a palavra sai do campo
+                        {
+                            for(int i=0 ; i < strlen (word) ; i++)
+                            {
+                            if(board[x+i][y]==1){ // restrição a palavra passa numa casa proibida
+                                    printf("erro nao pode colocar a palavra em casas proibidas");
+                                    exit(1);
+                                    }
+
+                            board[x+i][y]=word[i];
+
+                            }
+                        }else{printf("A palavra sai do tabuleiro\n");Error(2);}
+
+                    }
+                }
+            }
+
+        break;
+
+    case 'h':
+
+            for(int i = 0; i< lines ;i++){
+
+                for(int j = 0; j < lines ;j++)
+                {
+                    if(i == x && j == y)
+                    {
+                        if(j+strlen(word)<lines){
+
+                            for(int i=0 ; i < strlen (word) ; i++)
+                            {
+                                if(board[x][y+i]==1){ // restrição a palavra passa numa casa proibida
+                                    printf("erro nao pode colocar a palavra em casas proibidas");
+                                    Error(2);
+                                    }
+
+                                board[x][y+i]=word[i];
+
+                            }
+                        }else{printf("A palavra sai do tabuleiro\n");Error(2);}
+
+                    }
+                }
+            }
+        break;
+
+    }
 
 }
 
@@ -219,15 +346,30 @@ int Error(int i)
 
     case 2:
 
-        printf("");
+        printf("Erro de input de palavra veja as regras");
+        help();
 
         break;
 
     case 3:
+        printf("\n_______________________________________________");
+        printf("\nErro no input do tabuleiro (-t)");
+        printf("\n *-t lxc dimensões do tabuleiro (linha x coluna).");
+        printf("\nO tabuleiro deve ser bidimensional ");
+        printf("\nTem dimensoes maximas 15x15");
+        printf("\nTem dimensoes minimas 9x9");
+        printf("\nO numero de linhas e colunas deve ser impar.");
+        printf("\n_______________________________________________");
+
+
 
         break;
 
     case 4:
+        printf("\n_______________________________________________");
+        printf("\nErro no input do modo de jogo (-j)");
+        printf("\nPor favor escolha um modo de jogo de 1 a 4 ");
+        printf("\n_______________________________________________");
 
         break;
 
@@ -237,12 +379,8 @@ int Error(int i)
     }
 }
 
-/*  . casa vazia, onde pode ser posta qualquer letra
-    # casa proibida, onde não se pode pôr nenhuma letra
-    2 casa onde a letra lá colocada vale o dobro dos pontos
-    3 casa onde a letra lá colocada vale o triplo dos pontos
-    $ casa onde a palavra lá colocada vale o dobro dos pontos
-*/
+
+
 
 /** \brief função de que imprime mensagem ajuda
  *
@@ -255,6 +393,7 @@ int Error(int i)
 void help()
 {
     printf("\n____________________HELP____________________");
+    printf("\n Trabalho realizado por Luis Valencia e Vasco Pereira");
     printf("\n *-h ajuda para o utilizador ");
     printf("\n *-t lxc dimensões do tabuleiro (linha x coluna).");
     printf("\n *-d filename nome do ficheiro de dicionário a utilizar ");
