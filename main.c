@@ -31,7 +31,7 @@
  *===========================================================================*/
 void printboard(int board[15][15],int lines, int columns);
 void initboard(int board[15][15],int lines, int columns);
-void insert_word(int board[15][15],int direction,char palavra[15],int lines,int x,int y);
+void insert_word(int board[15][15],int lines);
 int Error(int i);
 void help();
 
@@ -40,12 +40,9 @@ void help();
  int main(int argc,char *argv[])
 {
     int board[15][15]={0};
-    int linhas=0,colunas=0;
-    int x =0,y =0;
+    int linhas=15,colunas=15;
     int option=0;
     int gamemode=0;
-    char word[MAX_LENGHT] = "teste" ;
-    char direction = 'h';
 
 
 
@@ -115,7 +112,7 @@ void help();
     }
 
     initboard(board,linhas,colunas);
-    insert_word(board,direction,word,linhas,x,y);
+    insert_word(board,linhas);
     printboard(board,linhas,colunas);
 
 
@@ -243,6 +240,22 @@ void initboard(int board[15][15],int lines, int columns)
     }
 
 }
+/** \brief Funçao para transformar as colunas em numeros
+ *
+ * \param
+ *        INPUT:Letra da coluna
+ * \return numero da coluna
+ */
+
+int columnid(char c)
+{
+    char alf[]={"ABCDEFGHIJKLMNO"};
+    for(int i =0 ; i < 15 ;i++)
+    {
+        if(alf[i]= c){return i+1;}
+
+    }
+}
 
 /** \brief Função que coloca a palavra dentro do tabuleiro na direção especificada
  *
@@ -257,11 +270,56 @@ void initboard(int board[15][15],int lines, int columns)
  * \return devolve o tabuleiro com a palavra colocada no sitio pretentido e na direção pretendida
  */
 
-void insert_word(int board[15][15],int direction,char word[MAX_LENGHT],int lines,int x,int y)
+void insert_word(int board[15][15],int lines)
 {
+    char word[MAX_LENGHT] = "teste" ;
+    char direction = 'h';
+    int x=0;// a primeira jogada é sempre feita no meio do campo
+    int y=0;
+    char coluna;
+    int jogada =0;
+    int erro=0;
+
+
+    do{
+            erro=0;
+            printf("\nInsira a jogada:(Colunaxlinhaxdirecao palavra);");
+            if((scanf("%c%d%c%[^\n]",&coluna,&x,&direction,word))!=1){
+                printf("\nNao consegui ler a jogada ");
+                erro=1;
+            }
+
+
+
+            if(((coluna < 'a' || coluna > 'a'+lines-1 ) && (coluna < 'A' || coluna > 'A'+lines-1)) ||x < 1 || x > lines){printf("Erro de coordenadas");// se as coordenadas nao tiverem no pressuposto intervalo dá erro
+                erro = 1;}
+            if( coluna > 'a' ||  coluna  < 'a'+lines-1){coluna -=32;} // transforma as minusculas em maiusculas
+
+            y=columnid(coluna); // funcao que transforma a letra da coluna num numero
+
+
+
+            if(jogada == 0 && direction == 'v'){printf("A primeira jogada tem de ser feita na horizontal");
+                erro=1;}
+
+            if((direction='H' && strlen(word)+x> lines) ||(direction='V' && strlen(word)+y > lines)){printf("Erro a palavra nao cabe no tabuleiro");
+                erro=1;
+            }
+
+    }while(erro==1); //se nao houver erros a jogada continua
+
+
+
+
+
+
+
+
+
+
     switch(direction)
     {
-    case 'v':
+    case 'V':
             for(int i = 0; i< lines ;i++){
 
                 for(int j = 0; j < lines ;j++)
@@ -288,7 +346,7 @@ void insert_word(int board[15][15],int direction,char word[MAX_LENGHT],int lines
 
         break;
 
-    case 'h':
+    case 'H':
 
             for(int i = 0; i< lines ;i++){
 
