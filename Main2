@@ -45,12 +45,24 @@ void help();
  int main(int argc,char *argv[])
 {
     int board[15][15]={0};
-    int linhas=15,colunas=15;
+    int linhas,colunas;
     int option=0;
     int gamemode=0;
 
 
-
+  printf("Escolha o tamanho do seu board:\n ");
+    scanf("%d",&linhas);
+    colunas = linhas;
+    if ( (linhas%2 == 0) || (linhas < 7) || (linhas > 15)){
+        do{
+            printf("Tamanho invalido. Insira outro tamanho:\n");
+            scanf("%d",&linhas);
+            colunas = linhas;
+        }
+        while ((linhas%2 == 0) || (linhas < 7) || (linhas > 15));
+    }
+    initboard(board,linhas,colunas);
+    printboard(board,linhas,colunas);
     while (((option = getopt(argc,argv,"h:t:d:l:m:n:i:j:o:r"))!=-1)){
             switch(option){
                 case 'h' :
