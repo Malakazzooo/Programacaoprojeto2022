@@ -29,9 +29,9 @@
  |   Known Bugs:
  |
  *===========================================================================*/
-void printboard(int board[15][15],int lines, int columns);
-void initboard(int board[15][15],int lines, int columns);
-void insert_word(int board[15][15],int lines);
+void printboard(int board[15][15],int lines);
+void initboard(int board[15][15],int lines);
+void insert_word(int board[15][15],int lines,int jogada);
 void validword(char word[MAX_LENGHT],char *lista_palavras[]);
 int Error(int i);
 void help();
@@ -117,12 +117,8 @@ void help();
     colunas=9;
 
 
+    gamemode1(board,linhas);
 
-
-    initboard(board,linhas,colunas);
-    printboard(board,linhas,linhas);
-    insert_word(board,linhas);
-    printboard(board,linhas,colunas);
 
 
 
@@ -143,7 +139,7 @@ void help();
  */
 
 
-void printboard(int board[15][15],int lines, int columns)
+void printboard(int board[15][15],int lines)
 {
 
     for(int i = 0 ;i < lines ;i++ )
@@ -151,7 +147,7 @@ void printboard(int board[15][15],int lines, int columns)
         printf("\n\t%d",i+1); //print do numero das linhas
         if (i<9 ){printf(" ");}//ajustar o campo
 
-        for(int j = 0; j < columns ; j++)
+        for(int j = 0; j < lines ; j++)
         {
             if(board[i][j]==0){printf(".  ");}
             else if(board[i][j]==1){printf("#  ");}
@@ -162,7 +158,7 @@ void printboard(int board[15][15],int lines, int columns)
         }
     }
     printf("\n\t  ");
-    for(int j = 0 ;j < columns; j++)
+    for(int j = 0 ;j < lines; j++)
     {
         printf("%c  ",'A'+j); // print dos identificadores das colunas
     }
@@ -181,13 +177,13 @@ void printboard(int board[15][15],int lines, int columns)
  *  \return tabuleiro inicializado
  */
 
-void initboard(int board[15][15],int lines, int columns)
+void initboard(int board[15][15],int lines)
 {
 
     //colocar o '0' que representa o simbolo '.'  no tabuleiro
     for( int i = 0; i < lines ; i++)
     {
-        for(int j = 0 ; j < columns; j++)
+        for(int j = 0 ; j < lines; j++)
         {
                 board[i][j]=0;
         }
@@ -196,23 +192,23 @@ void initboard(int board[15][15],int lines, int columns)
     //colocar o '4' que representa o simbolo $ no tabuleiro
     board[0][0]=4;
     board[lines-1][0]=4;
-    board[0][columns-1]=4;
-    board[lines-1][columns-1]=4;
+    board[0][lines-1]=4;
+    board[lines-1][lines-1]=4;
 
     //colocar o '3' no tabuleiro
     board[lines/2][0]=3;
-    board[0][columns/2]=3;
-    board[lines/2][columns-1]=3;
-    board[lines-1][columns/2]=3;
+    board[0][lines/2]=3;
+    board[lines/2][lines-1]=3;
+    board[lines-1][lines/2]=3;
 
 
 
     //colocar o '2' no tabuleiro
     for(int i = 0; i < lines ;i++)
     {
-        for(int j = 0; j < columns ;j++)
+        for(int j = 0; j < lines ;j++)
         {
-            if((i=j) && (j != columns-1))
+            if((i=j) && (j != lines-1))
             {
                 board[i][j]=2;
             }
@@ -221,9 +217,9 @@ void initboard(int board[15][15],int lines, int columns)
 
     for (int i = 0; i < lines ;i++)
     {
-        for(int j = columns ;j >0 ; j--)
+        for(int j = lines ;j >0 ; j--)
         {
-            if (i+j == lines -1 && j != columns-1)
+            if (i+j == lines -1 && j != lines-1)
             {
                 board[i][j]=2;
             }
@@ -233,17 +229,17 @@ void initboard(int board[15][15],int lines, int columns)
     //colocar o numero '1' que representa o simbolo '#' no tabuleiro
     for(int i = 0; i < lines ;i++)
     {
-        for(int j = 0; j < columns ;j++)
+        for(int j = 0; j < lines ;j++)
         {
             if(i== lines/2-1 || i== lines/2+1 )
             {
                 board[i][1]=1;
-                board[i][columns-2]=1;
+                board[i][lines-2]=1;
             }
             if(i == 1 || i == lines-2)
             {
-                board[i][columns/2-1]=1;
-                board[i][columns/2+1]=1;
+                board[i][lines/2-1]=1;
+                board[i][lines/2+1]=1;
 
             }
         }
@@ -267,27 +263,28 @@ void initboard(int board[15][15],int lines, int columns)
  * \return devolve o tabuleiro com a palavra colocada no sitio pretentido e na direção pretendida
  */
 
-void insert_word(int board[15][15],int lines)
+void insert_word(int board[15][15],int lines,int jogada)
 {
-    char word[MAX_LENGHT] = "teste" ;
-    char direction = 'h';
-    int x=0;
-    int y=0;
+
+    char word[MAX_LENGHT];
+    char direction;
+    int x;
+    int y;
     char coluna;
-    int jogada =0;
     int erro=0;
 
 
     do{
             erro=0;
             printf("\njogada:");
-            if((scanf("%c %d %c %s",&coluna,&y,&direction,&word))!=4 ) {
+            if((scanf("%c%d%c %s",&coluna,&y,&direction,&word))!=4  ) {
                 printf("\nNao consegui ler a jogada ");
                 erro=1;
             }
 
-            if (direction = 'H'){direction=='h';}
-            if (direction = 'V'){direction=='v';}
+
+            if (direction == 'H'){direction=='h';}
+            if (direction == 'V'){direction=='v';}
 
             x= coluna - 65;//transforma a letra da coluna num numero
 
@@ -302,6 +299,9 @@ void insert_word(int board[15][15],int lines)
             if((direction=='h' && strlen(word)+x> lines) ||(direction=='v' && strlen(word)+y > lines)){printf("Erro a palavra nao cabe no tabuleiro");
                 erro=1;
             }
+            if(word=='fim'){printf("Fim do modo de jogo");
+                return 1;}
+            y--;
 
             //x é o numero da coluna A
             //y é o numero da linha 1
@@ -378,6 +378,16 @@ void validword(char word[MAX_LENGHT],char *lista_palavras[]){
 }
 
 void gamemode1(board,linhas){
+
+    int jogada = 0;
+
+    initboard(board,linhas);
+    printboard(board,linhas);
+    do{
+        insert_word(board,linhas,jogada);
+        printboard(board,linhas);
+        jogada++;
+    }while (jogada >-1);
 
 
 
