@@ -1,5 +1,9 @@
 #include "headers.h"
 
+#include "gamemode.h"
+
+#include "board.h"
+
 #define MAX_LENGHT 16
 
 /*=============================================================================
@@ -29,8 +33,6 @@
  |   Known Bugs:
  |
  *===========================================================================*/
-void printboard(int board[15][15],int lines);
-void initboard(int board[15][15],int lines);
 void insert_word(int board[15][15],int lines,int jogada);
 void validword(char word[MAX_LENGHT],char *lista_palavras[]);
 int Error(int i);
@@ -49,7 +51,7 @@ void help();
 
 
 
-    while (((option = getopt(argc,argv,"h:t:d:l:m:n:i:j:o:r"))!=-1)){
+    while (((option = getopt(argc,argv,":h:t:l:m:n:i:j:o:r"))!=-1)){
             switch(option){
                 case 'h' :
                     help();
@@ -58,7 +60,7 @@ void help();
 
                 case 't' :
                     //erro se as duas variaves nao forem lidas corretamente
-                    if((sscanf(optarg,"%dx%d,&linhas,&colunas"))!=2)
+                    if((sscanf(optarg,"%dx%d",&linhas,&colunas))!=2)
                     {
                         Error(3);
                     }
@@ -104,7 +106,7 @@ void help();
 
                 case 'r' :
                     break;
-
+                case '?' :
                 default:
                     printf("\nArgumento desconhecido\n");
                     help();
@@ -113,11 +115,10 @@ void help();
                     break;
             }
     }
-    linhas=9;
-    colunas=9;
 
 
-    gamemode1(board,linhas);
+    if(gamemode=1){gamemode1(board,linhas);}
+
 
 
 
@@ -125,130 +126,6 @@ void help();
     return 0;
 
 }
-
-
-
-/** \brief Função que imprime o campo
- *
- *  \param
- *
- *      INPUT:board [15][15](int)board matrix
- *      INPUT:lines (int) number of lines in the matrix
- *      INPUT:Columns (int) number of columns in the matrix
- *  \return printf do tabuleiro
- */
-
-
-void printboard(int board[15][15],int lines)
-{
-
-    for(int i = 0 ;i < lines ;i++ )
-    {
-        printf("\n\t%d",i+1); //print do numero das linhas
-        if (i<9 ){printf(" ");}//ajustar o campo
-
-        for(int j = 0; j < lines ; j++)
-        {
-            if(board[i][j]==0){printf(".  ");}
-            else if(board[i][j]==1){printf("#  ");}
-            else if(board[i][j]==2){printf("2  ");}
-            else if(board[i][j]==3){printf("3  ");}
-            else if(board[i][j]==4){printf("$  ");}
-            else{printf("%c  ",board[i][j]);}
-        }
-    }
-    printf("\n\t  ");
-    for(int j = 0 ;j < lines; j++)
-    {
-        printf("%c  ",'A'+j); // print dos identificadores das colunas
-    }
-    printf("\n");
-}
-
-
-
-/** \brief Função que inicializa o campo
- *
- *  \param
- *
- *      INPUT:board [15][15](int)board matrix
- *      INPUT:lines (int) number of lines in the matrix
- *      INPUT:Columns (int) number of columns in the matrix
- *  \return tabuleiro inicializado
- */
-
-void initboard(int board[15][15],int lines)
-{
-
-    //colocar o '0' que representa o simbolo '.'  no tabuleiro
-    for( int i = 0; i < lines ; i++)
-    {
-        for(int j = 0 ; j < lines; j++)
-        {
-                board[i][j]=0;
-        }
-    }
-
-    //colocar o '4' que representa o simbolo $ no tabuleiro
-    board[0][0]=4;
-    board[lines-1][0]=4;
-    board[0][lines-1]=4;
-    board[lines-1][lines-1]=4;
-
-    //colocar o '3' no tabuleiro
-    board[lines/2][0]=3;
-    board[0][lines/2]=3;
-    board[lines/2][lines-1]=3;
-    board[lines-1][lines/2]=3;
-
-
-
-    //colocar o '2' no tabuleiro
-    for(int i = 0; i < lines ;i++)
-    {
-        for(int j = 0; j < lines ;j++)
-        {
-            if((i=j) && (j != lines-1))
-            {
-                board[i][j]=2;
-            }
-        }
-    }
-
-    for (int i = 0; i < lines ;i++)
-    {
-        for(int j = lines ;j >0 ; j--)
-        {
-            if (i+j == lines -1 && j != lines-1)
-            {
-                board[i][j]=2;
-            }
-        }
-    }
-
-    //colocar o numero '1' que representa o simbolo '#' no tabuleiro
-    for(int i = 0; i < lines ;i++)
-    {
-        for(int j = 0; j < lines ;j++)
-        {
-            if(i== lines/2-1 || i== lines/2+1 )
-            {
-                board[i][1]=1;
-                board[i][lines-2]=1;
-            }
-            if(i == 1 || i == lines-2)
-            {
-                board[i][lines/2-1]=1;
-                board[i][lines/2+1]=1;
-
-            }
-        }
-    }
-
-}
-
-
-
 
 /** \brief Função que coloca a palavra dentro do tabuleiro na direção especificada
  *
@@ -267,9 +144,10 @@ void insert_word(int board[15][15],int lines,int jogada)
 {
 
     char word[MAX_LENGHT];
+    char end[] ={"fim"};
     char direction;
-    int x;
-    int y;
+    int x=0;
+    int y=0;
     char coluna;
     int erro=0;
 
@@ -278,15 +156,20 @@ void insert_word(int board[15][15],int lines,int jogada)
             erro=0;
             printf("\njogada:");
             if((scanf("%c%d%c %s",&coluna,&y,&direction,&word))!=4  ) {
-                printf("\nNao consegui ler a jogada ");
+                printf("\n");
                 erro=1;
             }
+
+
+            if (strcmp(word,end)==0){printf("\nFim do jogo"); //se jogarmos fim o jogo acaba
+                exit(1);}
 
 
             if (direction == 'H'){direction=='h';}
             if (direction == 'V'){direction=='v';}
 
             x= coluna - 65;//transforma a letra da coluna num numero
+            y--;//acertar as linhas
 
 			if( x > 31 && x < 48){x -=32;} // transforma as minusculas em maiusculas
 
@@ -296,12 +179,17 @@ void insert_word(int board[15][15],int lines,int jogada)
             if(jogada == 0 && direction == 'v'){printf("A primeira jogada tem de ser feita na horizontal");
                 erro=1;}
 
-            if((direction=='h' && strlen(word)+x> lines) ||(direction=='v' && strlen(word)+y > lines)){printf("Erro a palavra nao cabe no tabuleiro");
+            if(jogada == 0 && y != lines/2 && x != lines/2 && (board[lines/2][lines/2]== 0|| board[lines/2][lines/2]== 1 || board[lines/2][lines/2]== 2 || board[lines/2][lines/2]== 3 || board[lines/2][lines/2]== 4)){printf("\nA primeira jogada tem de ser feita no meio do campo se nao houver la uma letra"); //se nao houver uma palavra no meio do tabuleiro e obrigatorio jogar la primeiro
+                erro=1;}
+
+
+            if((direction=='h' && strlen(word)+x> lines) ||(direction=='v' && strlen(word)+y-1 > lines)){printf("Erro a palavra nao cabe no tabuleiro");
                 erro=1;
             }
-            if(word=='fim'){printf("Fim do modo de jogo");
-                return 1;}
-            y--;
+
+
+
+
 
             //x é o numero da coluna A
             //y é o numero da linha 1
@@ -309,35 +197,32 @@ void insert_word(int board[15][15],int lines,int jogada)
     }while(erro==1); //se nao houver erros a jogada continua
 
 
-    switch(direction)
-    {
-    case 'v':
-            for(int i = 0; i< lines ;i++){
+    if(direction == 'v'){
 
+            for(int i = 0; i< lines ;i++)
+            {
                 for(int j = 0; j < lines ;j++)
                 {
                     if(i == y && j == x)
                     {
                             for(int i=0 ; i < strlen (word) ; i++)
                             {
-                            if(board[y+i][x]==1){ // restrição a palavra passa numa casa proibida
-                                    printf("erro nao pode colocar a palavra em casas proibidas");
-                                    exit(1);
-                                    }
+                                if(board[y+i][x]!=1){
+                                    board[y+i][x]=word[i];
+                                }
 
-                            board[y+i][x]=word[i];
+                                if(board[y+i][x]==1){// restrição a palavra passa numa casa proibida
+                                    printf("erro nao pode colocar a palavra em casas proibidas");
+                                    Error(2);
+                                }
 
                             }
                     }
                 }
             }
-
-        break;
-
-    case 'h':
-
-            for(int i = 0; i< lines ;i++){
-
+    }else if(direction == 'h'){
+            for(int i = 0; i< lines ;i++)
+            {
                 for(int j = 0; j < lines ;j++)
                 {
                     if(i == y && j == x)
@@ -345,20 +230,20 @@ void insert_word(int board[15][15],int lines,int jogada)
 
                         for(int i=0 ; i < strlen (word) ; i++)
                             {
-                                if(board[y][x+i]==1){ // restrição a palavra passa numa casa proibida
+                                if(board[y][x+i]!=1){
+                                    board[y][x+i]=word[i]; //escreve a palavra
+                                }
+
+                                if(board[y][x+i]==1){  // restrição a palavra passa numa casa proibida
                                     printf("erro nao pode colocar a palavra em casas proibidas");
                                     Error(2);
-                                    }
-
-                                board[y][x+i]=word[i];
+                                }
                             }
+
                     }
                 }
             }
-        break;
-
     }
-
 }
 
 /** \brief Funcao que recebe uma palavra e verifica s essa palavra existe no dicionario pretendido
@@ -376,27 +261,6 @@ void validword(char word[MAX_LENGHT],char *lista_palavras[]){
 
 
 }
-
-void gamemode1(board,linhas){
-
-    int jogada = 0;
-
-    initboard(board,linhas);
-    printboard(board,linhas);
-    do{
-        insert_word(board,linhas,jogada);
-        printboard(board,linhas);
-        jogada++;
-    }while (jogada >-1);
-
-
-
-}
-
-
-
-
-
 
 /**\brief funçao que recebe um numero e imprime o tipo de erro cometido e mostra a função0 ajuda
  *
@@ -420,7 +284,7 @@ int Error(int i)
 
     case 2:
 
-        printf("Erro de input de palavra veja as regras");
+        printf("\nErro de input de palavra veja as regras");
         help();
 
         break;
