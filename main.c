@@ -9,7 +9,7 @@
 /*=============================================================================
  |   Assignment:  Palavras cruzadas 2021/2022
  |
- |       Author:  Luís Valência, Vasco Pereira
+ |       Author:  Luis Valencia(100010), Vasco Pereira()
  |     Language:  C ,gcc gnu compiler
  |   To Compile:
 
@@ -33,9 +33,9 @@
  |   Known Bugs:
  |
  *===========================================================================*/
-void insert_word(int board[15][15],int lines,int jogada);
+int insert_word(int board[15][15],int lines,int jogada);
 void validword(char word[MAX_LENGHT],char *lista_palavras[]);
-int Error(int i);
+void Error(int i);
 void help();
 
 
@@ -45,7 +45,11 @@ void help();
     int board[15][15]={0};
     int linhas=15,colunas=15;
     int option=0;
-    int gamemode=0;
+    int gamemode=1; //predefinicao de modo de jogo
+    char *infile = NULL;
+    char *outfile = NULL;
+    FILE *fp;
+    FILE *fpout;
 
 
 
@@ -74,6 +78,9 @@ void help();
                     break;
 
                 case 'd' :
+
+                    infile = optarg;
+
                     break;
 
                 case 'l' :
@@ -102,11 +109,18 @@ void help();
                     break;
 
                 case 'o' :
+
+                    outfile = optarg;
                     break;
 
                 case 'r' :
                     break;
                 case '?' :
+                    if (optopt == 'i' || optopt=='t' || optopt=='d' || optopt=='l' || optopt=='m') {
+                printf("Faltam argumentos \n");
+                    }
+                    break;
+
                 default:
                     printf("\nArgumento desconhecido\n");
                     help();
@@ -117,7 +131,38 @@ void help();
     }
 
 
-    if(gamemode=1){gamemode1(board,linhas);}
+
+
+
+    //*********************ficheiros************************
+
+    //abrir o ficheiro de entrada
+    if(infile)
+    {
+        printf("\n*A abrir o ficheiro %s *\n", infile);
+        if ((fp= fopen(infile, "r"))==NULL)
+        {
+            printf("Não consegui abrir o ficheiro de entrada.\n");
+            exit(-1);
+        }
+    }
+    //abir o ficheiro de saida
+    if(outfile)
+    {
+        printf("\n*A abrir o ficheiro %s *\n", outfile);
+        if ((fpout= fopen(outfile, "r"))==NULL)
+        {
+            printf("Não consegui abrir o ficheirod de saida.\n");
+            exit(-1);
+        }
+    }
+
+
+
+    //*********************ficheiros************************
+
+
+    if(gamemode==1){gamemode1(board,linhas);}
 
 
 
@@ -137,10 +182,10 @@ void help();
  *        INPUT:Coordenada x
  *        INPUT:Coordenada y
  *
- * \return devolve o tabuleiro com a palavra colocada no sitio pretentido e na direção pretendida
+ * \return devolve o tabuleiro com a palavra colocada no sitio pretendido e na direção pretendida
  */
 
-void insert_word(int board[15][15],int lines,int jogada)
+int insert_word(int board[15][15],int lines,int jogada)
 {
 
     char word[MAX_LENGHT];
@@ -161,7 +206,7 @@ void insert_word(int board[15][15],int lines,int jogada)
             }
 
 
-            if (strcmp(word,end)==0){printf("\nFim do jogo"); //se jogarmos fim o jogo acaba
+            if (strcmp(word,end)==0){printf("\n*Fim do jogo*"); //se jogarmos fim o jogo acaba
                 exit(1);}
 
 
@@ -173,14 +218,14 @@ void insert_word(int board[15][15],int lines,int jogada)
 
 			if( x > 31 && x < 48){x -=32;} // transforma as minusculas em maiusculas
 
-            if( x < 0 || x > lines || y < 0 || y > lines){printf("Erro de coordenadas");// se as coordenadas nao tiverem no pressuposto intervalo dá erro
+            if( (x < 0 || x > lines) || (y < 0 || y > lines)){printf("Erro de coordenadas");// se as coordenadas nao tiverem no pressuposto intervalo dá erro
                 erro = 1;}
 
             if(jogada == 0 && direction == 'v'){printf("A primeira jogada tem de ser feita na horizontal");
                 erro=1;}
 
-            if(jogada == 0 && y != lines/2 && x != lines/2 && (board[lines/2][lines/2]== 0|| board[lines/2][lines/2]== 1 || board[lines/2][lines/2]== 2 || board[lines/2][lines/2]== 3 || board[lines/2][lines/2]== 4)){printf("\nA primeira jogada tem de ser feita no meio do campo se nao houver la uma letra"); //se nao houver uma palavra no meio do tabuleiro e obrigatorio jogar la primeiro
-                erro=1;}
+            if(jogada == 0 && y != lines/2 && x != lines/2 && (board[lines/2][lines/2]== 0|| board[lines/2][lines/2]== 1 || board[lines/2][lines/2]== 2 || board[lines/2][lines/2]== 3 || board[lines/2][lines/2]== 4)){printf("\nA primeira jogada tem de ser feita no meio do campo se nao houver la uma letra");
+                erro=1;}//se nao houver uma palavra no meio do tabuleiro e obrigatorio jogar la primeiro
 
 
             if((direction=='h' && strlen(word)+x> lines) ||(direction=='v' && strlen(word)+y-1 > lines)){printf("Erro a palavra nao cabe no tabuleiro");
@@ -207,9 +252,10 @@ void insert_word(int board[15][15],int lines,int jogada)
                     {
                             for(int i=0 ; i < strlen (word) ; i++)
                             {
-                                if(board[y+i][x]!=1){
-                                    board[y+i][x]=word[i];
-                                }
+                                if(board[y+i][x]!=1 &&(board[y+i][x]==0 || board[y+i][x]==2 || board[y+i][x]==3 || board[y+i][x]==4 || board[y][x]==word[0])){
+                                    board[y+i][x]=word[i];  //escreve a palavra
+                                }else{printf("Nao pode escrever por cima de palavras");
+                                        return -1;}
 
                                 if(board[y+i][x]==1){// restrição a palavra passa numa casa proibida
                                     printf("erro nao pode colocar a palavra em casas proibidas");
@@ -230,9 +276,10 @@ void insert_word(int board[15][15],int lines,int jogada)
 
                         for(int i=0 ; i < strlen (word) ; i++)
                             {
-                                if(board[y][x+i]!=1){
+                                if(board[y][x+i]!=1 && (board[y][x+i]==0 || board[y][x+i]==2 || board[y][x+i]==3 || board[y][x+i]==4 || board[y][x]==word[0])){
                                     board[y][x+i]=word[i]; //escreve a palavra
-                                }
+                                }else{printf("Nao pode escrever por cima de palavras");
+                                        return -1;}
 
                                 if(board[y][x+i]==1){  // restrição a palavra passa numa casa proibida
                                     printf("erro nao pode colocar a palavra em casas proibidas");
@@ -244,6 +291,7 @@ void insert_word(int board[15][15],int lines,int jogada)
                 }
             }
     }
+    return 1;
 }
 
 /** \brief Funcao que recebe uma palavra e verifica s essa palavra existe no dicionario pretendido
@@ -255,9 +303,7 @@ void insert_word(int board[15][15],int lines,int jogada)
  *
  */
 
-void validword(char word[MAX_LENGHT],char *lista_palavras[]){
-
-
+void validword(char *word,char *lista_palavras[]){
 
 
 }
@@ -265,13 +311,13 @@ void validword(char word[MAX_LENGHT],char *lista_palavras[]){
 /**\brief funçao que recebe um numero e imprime o tipo de erro cometido e mostra a função0 ajuda
  *
  * \param
- *      Input: numero do erro (i)
+ *      INPUT: numero do erro (i)
  *
- * \return Tipo de erro e mostra a mensagem de ajuda
+ *      OUTPUT: Tipo de erro e mostra a mensagem de ajuda
  *
  */
 
-int Error(int i)
+void Error(int i)
 {
     switch(i)
     {
@@ -317,15 +363,10 @@ int Error(int i)
     }
 }
 
-
-
-
 /** \brief função de que imprime mensagem ajuda
  *
  * \param
- *      Output:Mensagem de ajuda
- *
- *
+ *      OUTPUTt:Mensagem de ajuda
  */
 
 void help()

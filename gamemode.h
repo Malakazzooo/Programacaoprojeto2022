@@ -2,5 +2,6 @@
 #define GAMEMODE_H_INCLUDED
 
 void gamemode1(int board[15][15],int lines);
+void gamemode2(int board[15][15],int lines);
 
 #endif // GAMEMODE_H_INCLUDED

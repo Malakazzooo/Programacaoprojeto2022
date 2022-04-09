@@ -9,7 +9,8 @@
  *      INPUT:board [15][15](int)board matrix
  *      INPUT:lines (int) number of lines in the matrix
  *      INPUT:Columns (int) number of columns in the matrix
- *  \return printf do tabuleiro
+ *
+ *      OUTPUT:printf do tabuleiro
  */
 
 
@@ -48,8 +49,8 @@ void printboard(int board[15][15],int lines)
  *      INPUT:board [15][15](int)board matrix
  *      INPUT:lines (int) number of lines in the matrix
  *
- *  \return tabuleiro inicializado
- */
+ *      OUTPUT:tabuleiro inicializado
+ **/
 
 void initboard(int board[15][15],int lines)
 {
