@@ -1,6 +1,8 @@
 #include "headers.h"
 #include "gamemode.h"
 #include "board.h"
+#include "word.h"
+
 
 /** \brief funcao que corre o gamemode 1
  *
